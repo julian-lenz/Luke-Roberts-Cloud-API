@@ -7,22 +7,16 @@ This is a Python library for abstracting the HTTP API of the lamp control for Lu
 Use the package manager [pip](https://pip.pypa.io/en/stable/) to install foobar.
 
 ```bash
-pip install foobar
+pip install luke_roberts_cloud_api
 ```
 
 ## Usage
 
 ```python
-import foobar
+import luke_roberts_cloud_api
 
-# returns 'words'
-foobar.pluralize('word')
-
-# returns 'geese'
-foobar.pluralize('goose')
-
-# returns 'phenomenon'
-foobar.singularize('phenomena')
+# setup connection
+c
 ```
 
 ## Contributing
