@@ -1,5 +1,6 @@
 import requests as req
 from requests import Response
+import json
 
 BASE_URL = "https://cloud.luke-roberts.com/api/v1"
 headers = {"Authorization": "Bearer 095a7115-5d51-40a8-90ab-f11471b558de"}
@@ -19,12 +20,12 @@ class Lamp():
     async def turn_on(self):
         url = f"{BASE_URL}/{self._id}/command"
         body = {"power": "ON"}
-        req.put(url=url, body=body, headers=headers)
+        req.put(url=url, headers=headers, json=body)
 
     async def turn_off(self):
         url = f"{BASE_URL}/{self._id}/command"
         body = {"power": "OFF"}
-        req.put(url=url, body=body, headers=headers)
+        req.put(url=url, json=body, headers=headers)
 
     async def set_brightness(self, brightness: int):
         if brightness < 100:
@@ -34,22 +35,22 @@ class Lamp():
 
         url = f"{BASE_URL}/{self._id}/command"
         body = {"brightness": brightness}
-        req.put(url=url, body=body, headers=headers)
+        req.put(url=url, json=body, headers=headers)
 
     # Getters
     def is_on(self):
         url = f"{BASE_URL}/{self._id}/state"
-        res = req.get(url=url, headers=headers).json
+        res = req.get(url=url, headers=headers).json()
         return res["on"]
 
     def brightness(self):
         url = f"{BASE_URL}/{self._id}/state"
-        res = req.get(url=url, headers=headers).json
-        return res["brightness"]
+        res = req.get(url=url, headers=headers).json()
+        return res.get("brightness")
 
     def temperature(self):
         url = f"{BASE_URL}/{self._id}/state"
-        res = req.get(url=url, headers=headers).json
+        res = req.get(url=url, headers=headers).json()
         return res["color"]["temperatureK"]
 
 
@@ -57,14 +58,19 @@ class Luke_Roberts_Cloud():
     """Interface to the luke roberts cloud service"""
 
     _lamps = []
+    _api_key: str
+    _headers: dict
 
-    def __init__(self, api_key) -> None:
+    def __init__(self, api_key: str) -> None:
         self._api_key = api_key
-
+        self._headers['Authorization'] = f"Bearer {api_key}"
         url = f"{BASE_URL}/lamps"
         res = req.get(url=url, headers=headers).json
         for light in res:
             self._lamps.__add__(light)
+
+    def setApiKey(self, api_key: str):
+        self._api_key = api_key
 
     def testConnection(self):
         url = f"{BASE_URL}/lamps"
