@@ -1,4 +1,5 @@
 import requests as req
+from requests import Response
 
 BASE_URL = "https://cloud.luke-roberts.com/api/v1"
 headers = {"Authorization": "Bearer 095a7115-5d51-40a8-90ab-f11471b558de"}
@@ -55,7 +56,7 @@ class Lamp():
 class Luke_Roberts_Cloud():
     """Interface to the luke roberts cloud service"""
 
-    lamps = []
+    _lamps = []
 
     def __init__(self, api_key) -> None:
         self._api_key = api_key
@@ -63,4 +64,21 @@ class Luke_Roberts_Cloud():
         url = f"{BASE_URL}/lamps"
         res = req.get(url=url, headers=headers).json
         for light in res:
-            self.lamps.__add__(light)
+            self._lamps.__add__(light)
+
+    def testConnection(self):
+        url = f"{BASE_URL}/lamps"
+        res = req.get(url=url, headers=headers)
+        res: Response = res.json()
+        return res.ok
+
+    def get_lamps(self):
+        return self._lamps
+
+    def refresh(self):
+        self._lamps = []
+        url = f"{BASE_URL}/lamps"
+        res = req.get(url=url, headers=headers).json()
+        for light in res:
+            self._lamps.__add__(light)
+        return self._lamps
