@@ -37,6 +37,15 @@ class Lamp:
         res = req.get(url=url, headers=self._headers, timeout=10)
         return res.json()
 
+    def getName(self):
+        return self._name
+
+    def getSerialNumber(self):
+        return self._serial_number
+
+    def getId(self):
+        return self._id
+
     async def turn_on(self):
         body = {"power": "ON"}
         self._send_command(body)
