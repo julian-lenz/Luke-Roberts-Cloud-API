@@ -11,9 +11,9 @@ class Lamp:
     _headers: dict
 
     _online: bool
-    _power: bool
-    _brightness: int
-    _colorTemp: int
+    power: bool
+    brightness: int
+    colortempK: int
 
     """Safes the scenes internally, key is the scene id, value is the name"""
     _scenes = dict
@@ -88,21 +88,11 @@ class Lamp:
         self._send_command(body)
         await self.refresh()
 
-    # Getters
-    def is_on(self):
-        return self._power
-
-    def brightness(self):
-        return self._brightness
-
-    def temperature(self):
-        return self._colorTemp
-
     async def refresh(self):
         state = self._get_state()
-        self._brightness = state["brightness"]
-        self._colorTemp = state["color"]["temperatureK"]
-        self._power = state["on"]
+        self.brightness = state["brightness"]
+        self.colortempK = state["color"]["temperatureK"]
+        self.power = state["on"]
         return self
 
     def __str__(self):
