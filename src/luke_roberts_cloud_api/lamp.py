@@ -7,10 +7,6 @@ class Lamp:
     """Luke Roberts Luvo (Model F) Lamp"""
     _headers: dict
 
-    _online: bool
-    power: bool
-    brightness: int
-    colortemp_kelvin: int
 
     """Safes the scenes internally, key is the scene id, value is the name"""
     _scenes = dict
@@ -21,6 +17,10 @@ class Lamp:
         self._api_version = lampInfo["api_version"]
         self._serial_number = lampInfo["serial_number"]
         self._headers = headers
+        self.power: bool = False
+        self.brightness: int = 0
+        self.colortemp_kelvin: int = 0
+        self._online: bool = False
 
     async def _send_command(self, body):
         url = f"{BASE_URL}/lamps/{self._id}/command"
@@ -103,6 +103,7 @@ class Lamp:
         self.brightness = state["brightness"]
         self.colortemp_kelvin = state["color"]["temperatureK"]
         self.power = state["on"]
+        self._online = state["online"]
         return self
 
     def __str__(self):
