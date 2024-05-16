@@ -7,7 +7,6 @@ class Lamp:
     """Luke Roberts Luvo (Model F) Lamp"""
     _headers: dict
 
-
     """Safes the scenes internally, key is the scene id, value is the name"""
     _scenes = dict
 
@@ -109,4 +108,9 @@ class Lamp:
     def __str__(self):
         return (f"{self._name}, "
                 f"Serial Number: {self._serial_number}, "
-                f"ID: {self._id},")
+                f"ID: {self._id},"
+                f"Power: {self.power}, "
+                f"Brightness: {self.brightness}, "
+                f"Color Temp: {self.colortemp_kelvin}, "
+                f"Online: {self._online}"
+                )
