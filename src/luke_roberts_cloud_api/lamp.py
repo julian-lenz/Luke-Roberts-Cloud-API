@@ -1,9 +1,5 @@
-from datetime import datetime
-
+from .const import BASE_URL
 import requests as req
-from requests import Response
-
-BASE_URL = "https://cloud.luke-roberts.com/api/v1"
 
 
 class Lamp:
@@ -13,7 +9,7 @@ class Lamp:
     _online: bool
     power: bool
     brightness: int
-    colortempK: int
+    colortemp_kelvin: int
 
     """Safes the scenes internally, key is the scene id, value is the name"""
     _scenes = dict
@@ -91,7 +87,7 @@ class Lamp:
     async def refresh(self):
         state = self._get_state()
         self.brightness = state["brightness"]
-        self.colortempK = state["color"]["temperatureK"]
+        self.colortemp_kelvin = state["color"]["temperatureK"]
         self.power = state["on"]
         return self
 
@@ -99,35 +95,3 @@ class Lamp:
         return (f"{self._name}, "
                 f"Serial Number: {self._serial_number}, "
                 f"ID: {self._id},")
-
-
-class LukeRobertsCloud:
-    """Interface to the luke roberts cloud service"""
-
-    _lamps = []
-    _api_key: str
-    _headers = dict()
-
-    def __init__(self, api_key: str = "") -> None:
-        self.set_api_key(api_key)
-        if self.test_connection():
-            self.fetch()
-
-    def set_api_key(self, api_key: str) -> None:
-        self._api_key = api_key
-        self._headers['Authorization'] = f"Bearer {api_key}"
-
-    def test_connection(self):
-        url = f"{BASE_URL}/lamps"
-        res = req.get(url=url, headers=self._headers, timeout=10)
-        return res.ok
-
-    async def fetch(self):
-        self._lamps = []
-        url = f"{BASE_URL}/lamps"
-        res = req.get(url=url, headers=self._headers, timeout=10).json()
-        for light in res:
-            self._lamps.append(Lamp(light, self._headers))
-
-    def get_lamps(self):
-        return self._lamps
