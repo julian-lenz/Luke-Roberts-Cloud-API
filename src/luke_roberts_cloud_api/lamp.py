@@ -38,7 +38,7 @@ class Lamp:
                     raise Exception(response.text)
                 return await response.json()
 
-    def getName(self):
+    def getName(self) -> str:
         return self._name
 
     def getSerialNumber(self):
@@ -46,6 +46,15 @@ class Lamp:
 
     def getId(self):
         return self._id
+
+    def getPower(self):
+        return self.power
+
+    def getBrightness(self):
+        return self.brightness
+
+    def getColorTemp(self):
+        return self.colortemp_kelvin
 
     async def turn_on(self):
         body = {"power": "ON"}
