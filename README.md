@@ -13,10 +13,11 @@ pip install luke_roberts_cloud_api
 ## Usage
 
 ```python
-import luke_roberts_cloud_api
+import luke_roberts_cloud_api.luke_roberts_cloud as lr
 
 # setup connection
-c
+lrcloud = lr.LukeRobertsCloud(API_KEY)
+lrcloud.fetch()
 ```
 
 ## Contributing
