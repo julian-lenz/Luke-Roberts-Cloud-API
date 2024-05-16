@@ -27,9 +27,8 @@ class Lamp:
         # res = req.put(url=url, headers=self._headers, json=body, timeout=10)
         async with aiohttp.ClientSession() as session:
             async with session.put(url, headers=self._headers, json=body, timeout=10) as response:
-                res = await response.json()
-                if not res.ok:
-                    raise Exception(res.text)
+                if not response.ok:
+                    raise Exception(response.text)
 
     async def _get_state(self):
         url = f"{BASE_URL}/lamps/{self._id}/state"
@@ -37,7 +36,7 @@ class Lamp:
             async with session.get(url, headers=self._headers, timeout=10) as response:
                 if not response.ok:
                     raise Exception(response.text)
-                res = await response.json()
+                return await response.json()
 
     def getName(self):
         return self._name
@@ -91,7 +90,7 @@ class Lamp:
         await self.refresh()
 
     async def refresh(self):
-        state = self._get_state()
+        state = await self._get_state()
         self.brightness = state["brightness"]
         self.colortemp_kelvin = state["color"]["temperatureK"]
         self.power = state["on"]
