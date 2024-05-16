@@ -1,4 +1,4 @@
-import requests as req
+import aiohttp
 
 from .const import BASE_URL
 from .lamp import Lamp
@@ -21,16 +21,27 @@ class LukeRobertsCloud:
 
     async def test_connection(self):
         url = f"{BASE_URL}/lamps"
-        res = req.get(url=url, headers=self._headers, timeout=10)
-        return res.ok
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, headers=self._headers, timeout=10) as response:
+                return response.ok
+
+    # async def fetch(self):
+    #     self._lamps = []
+    #     url = f"{BASE_URL}/lamps"
+    #     res = req.get(url=url, headers=self._headers, timeout=10).json()
+    #     for light in res:
+    #         self._lamps.append(Lamp(light, self._headers))
+    #     return self._lamps
 
     async def fetch(self):
         self._lamps = []
         url = f"{BASE_URL}/lamps"
-        res = req.get(url=url, headers=self._headers, timeout=10).json()
-        for light in res:
-            self._lamps.append(Lamp(light, self._headers))
-        return self._lamps
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, headers=self._headers, timeout=10) as response:
+                res = await response.json()
+                for light in res:
+                    self._lamps.append(Lamp(light, self._headers))
+                return self._lamps
 
     def get_lamps(self):
         return self._lamps

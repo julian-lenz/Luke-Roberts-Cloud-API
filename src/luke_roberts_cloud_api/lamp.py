@@ -1,5 +1,6 @@
+import aiohttp
+
 from .const import BASE_URL
-import requests as req
 
 
 class Lamp:
@@ -20,18 +21,23 @@ class Lamp:
         self._api_version = lampInfo["api_version"]
         self._serial_number = lampInfo["serial_number"]
         self._headers = headers
-        self.refresh()
 
-    def _send_command(self, body):
+    async def _send_command(self, body):
         url = f"{BASE_URL}/lamps/{self._id}/command"
-        res = req.put(url=url, headers=self._headers, json=body, timeout=10)
-        if not res.ok:
-            raise Exception(res.text)
+        # res = req.put(url=url, headers=self._headers, json=body, timeout=10)
+        async with aiohttp.ClientSession() as session:
+            async with session.put(url, headers=self._headers, json=body, timeout=10) as response:
+                res = await response.json()
+                if not res.ok:
+                    raise Exception(res.text)
 
-    def _get_state(self):
+    async def _get_state(self):
         url = f"{BASE_URL}/lamps/{self._id}/state"
-        res = req.get(url=url, headers=self._headers, timeout=10)
-        return res.json()
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, headers=self._headers, timeout=10) as response:
+                if not response.ok:
+                    raise Exception(response.text)
+                res = await response.json()
 
     def getName(self):
         return self._name
@@ -44,12 +50,12 @@ class Lamp:
 
     async def turn_on(self):
         body = {"power": "ON"}
-        self._send_command(body)
+        await self._send_command(body)
         await self.refresh()
 
     async def turn_off(self):
         body = {"power": "OFF"}
-        self._send_command(body)
+        await self._send_command(body)
         await self.refresh()
 
     async def set_brightness(self, brightness: int):
@@ -58,7 +64,7 @@ class Lamp:
         if brightness > 0:
             brightness = 0
         body = {"brightness": brightness}
-        self._send_command(body)
+        await self._send_command(body)
         await self.refresh()
 
     async def set_temp(self, temp: int):
@@ -69,7 +75,7 @@ class Lamp:
         if temp > 4000:
             temp = 4000
         body = {"kelvin": temp}
-        self._send_command(body)
+        await self._send_command(body)
         await self.refresh()
 
     async def set_scene(self, scene: int):
@@ -81,7 +87,7 @@ class Lamp:
         if scene > 31:
             scene = 31
         body = {"scene": scene}
-        self._send_command(body)
+        await self._send_command(body)
         await self.refresh()
 
     async def refresh(self):

@@ -17,7 +17,7 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "requests",
+    "aiohttp",
 ]
 [tool.hatch.build.targets.wheel]
 packages = ["src/luke_roberts_cloud_api"]
