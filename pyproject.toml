@@ -1,10 +1,10 @@
 [build-system]
-requires = ["requests", "hatchling"]
+requires = ["hatchling"]
 build-backend = "hatchling.build"#
 
 [project]
 name = "luke_roberts_cloud_api"
-version = "0.0.4"
+version = "0.0.7"
 authors = [
   { name="Julian Lenzenweger", email="j.lenzenweger@gmail.com" },
 ]
@@ -16,7 +16,9 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-
+dependencies = [
+    "requests",
+]
 [tool.hatch.build.targets.wheel]
 packages = ["src/luke_roberts_cloud_api"]
 
