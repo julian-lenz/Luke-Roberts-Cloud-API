@@ -3,6 +3,17 @@ import aiohttp
 from .const import BASE_URL
 
 
+def _create_body(power=None, brightness=None, kelvin=None) -> dict:
+    body = {}
+    if brightness is not None:
+        body["brightness"] = max(0, min(100, brightness))
+    if kelvin is not None:
+        body["kelvin"] = max(2700, min(4000, kelvin))
+    if power is not None:
+        body["power"] = power
+    return body
+
+
 class Lamp:
     """Luke Roberts Luvo (Model F) Lamp"""
     _headers: dict
@@ -56,22 +67,21 @@ class Lamp:
     def getColorTemp(self):
         return self.colortemp_kelvin
 
-
-    async def turn_on(self, brightness=None, color_temp=None):
-        """Instructs the light to turn on, optionally with a specific brightness and color temperature."""
-        body = {"power": "ON"}
-
-        if brightness is not None:
-            body["brightness"] = max(0, min(100, brightness))
-        if color_temp is not None:
-            body["kelvin"] = max(2700, min(4000, color_temp))
-
-        await self._send_command(body)
+    async def turn_on(self, brightness: int = None, color_temp: int = None):
+        """Instructs the light to turn on, optionally with a specific brightness and color temperature.
+        Brightness is a value between 0 and 100, color_temp is a value between 2700 and 4000."""
+        await self._send_command(_create_body(power="ON", brightness=brightness, kelvin=color_temp))
         await self.refresh()
 
     async def turn_off(self):
         body = {"power": "OFF"}
         await self._send_command(body)
+        await self.refresh()
+
+    async def set_values(self, brightness: int, color_temp: int):
+        """Set the brightness and color temperature of the downlight of the lamp.
+        Similar to turn_on, but does not change the power state of the lamp."""
+        await self._send_command(_create_body(brightness=brightness, kelvin=color_temp))
         await self.refresh()
 
     async def set_brightness(self, brightness: int):
@@ -117,7 +127,7 @@ class Lamp:
     def __str__(self):
         return (f"{self._name}, "
                 f"Serial Number: {self._serial_number}, "
-                f"ID: {self._id},"
+                f"ID: {self._id}, "
                 f"Power: {self.power}, "
                 f"Brightness: {self.brightness}, "
                 f"Color Temp: {self.colortemp_kelvin}, "
