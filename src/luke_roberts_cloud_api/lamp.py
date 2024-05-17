@@ -25,7 +25,7 @@ class Lamp:
         self._id = lampInfo["id"]
         self._name = lampInfo["name"]
         self._api_version = lampInfo["api_version"]
-        self._serial_number = lampInfo["serial_number"]
+        self._serial_number: str = lampInfo["serial_number"]
         self._headers = headers
         self.power: bool = False
         self.brightness: int = 0
@@ -52,13 +52,16 @@ class Lamp:
     def getName(self) -> str:
         return self._name
 
-    def getSerialNumber(self):
+    def getSerialNumber(self) -> str:
         return self._serial_number
 
-    def getId(self):
+    def getId(self) -> int:
         return self._id
 
-    def getPower(self):
+    def getApiVersion(self) -> str:
+        return self._api_version
+
+    def getPower(self) -> bool or None:
         return self.power
 
     def getBrightness(self):
@@ -66,6 +69,9 @@ class Lamp:
 
     def getColorTemp(self):
         return self.kelvin
+
+    def getOnline(self):
+        return self._online
 
     async def turn_on(self, brightness: int = None, color_temp: int = None):
         """Instructs the light to turn on, optionally with a specific brightness and color temperature.
