@@ -22,6 +22,7 @@ class Lamp:
         self._online: bool = False
 
     async def _send_command(self, body):
+        """Sends a put request to the lamp with the given body, passes headers from setup."""
         url = f"{BASE_URL}/lamps/{self._id}/command"
         # res = req.put(url=url, headers=self._headers, json=body, timeout=10)
         async with aiohttp.ClientSession() as session:
@@ -55,8 +56,16 @@ class Lamp:
     def getColorTemp(self):
         return self.colortemp_kelvin
 
-    async def turn_on(self):
+
+    async def turn_on(self, brightness=None, color_temp=None):
+        """Instructs the light to turn on, optionally with a specific brightness and color temperature."""
         body = {"power": "ON"}
+
+        if brightness is not None:
+            body["brightness"] = max(0, min(100, brightness))
+        if color_temp is not None:
+            body["kelvin"] = max(2700, min(4000, color_temp))
+
         await self._send_command(body)
         await self.refresh()
 
