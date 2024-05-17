@@ -3,23 +3,15 @@ import aiohttp
 from .const import BASE_URL
 
 
-def _create_body(power=None, brightness: int = None, kelvin: int = None) -> dict:
-    body = {}
-    if brightness is not None:
-        body["brightness"] = max(0, min(100, brightness))
-    if kelvin is not None:
-        body["kelvin"] = max(2700, min(4000, kelvin))
-    if power is not None:
-        body["power"] = power
-    return body
-
-
 class Lamp:
     """Luke Roberts Luvo (Model F) Lamp"""
     _headers: dict
 
     """Safes the scenes internally, key is the scene id, value is the name"""
     _scenes = dict
+
+    _max_kelvin = 4000
+    _min_kelvin = 2700
 
     def __init__(self, lampInfo, headers) -> None:
         self._id = lampInfo["id"]
@@ -49,6 +41,26 @@ class Lamp:
                     raise Exception(response.text)
                 return await response.json()
 
+    async def set_values(self, power: bool = None, brightness: int = None, kelvin: int = None):
+        """Set the brightness and color temperature of the downlight of the lamp.
+        Similar to turn_on, but does not change the power state of the lamp."""
+
+        body = {}
+        if brightness is not None:
+            brightness = max(0, min(100, brightness))
+            body["brightness"] = brightness
+        if kelvin is not None:
+            kelvin = max(self._min_kelvin, min(self._max_kelvin, kelvin))
+            body["kelvin"] = kelvin
+        if power is not None:
+            body["power"] = power
+
+        await self._send_command(body)
+        # Update the internal state, if the request was successful (did not raise an exception)
+        self.power = power if power is not None else self.power
+        self.brightness = brightness if brightness is not None else self.brightness
+        self.kelvin = kelvin if kelvin is not None else self.kelvin
+
     def getName(self) -> str:
         return self._name
 
@@ -76,18 +88,11 @@ class Lamp:
     async def turn_on(self, brightness: int = None, color_temp: int = None):
         """Instructs the light to turn on, optionally with a specific brightness and color temperature.
         Brightness is a value between 0 and 100, color_temp is a value between 2700 and 4000."""
-        await self._send_command(_create_body(power="ON", brightness=brightness, kelvin=color_temp))
-        await self.refresh()
+        await self._send_command(self.set_values(power=True, brightness=brightness, kelvin=color_temp))
 
     async def turn_off(self):
         body = {"power": "OFF"}
         await self._send_command(body)
-        await self.refresh()
-
-    async def set_values(self, brightness: int, color_temp: int):
-        """Set the brightness and color temperature of the downlight of the lamp.
-        Similar to turn_on, but does not change the power state of the lamp."""
-        await self._send_command(_create_body(brightness=brightness, kelvin=color_temp))
         await self.refresh()
 
     async def set_brightness(self, brightness: int):
@@ -97,7 +102,6 @@ class Lamp:
             brightness = 0
         body = {"brightness": brightness}
         await self._send_command(body)
-        await self.refresh()
 
     async def set_temp(self, temp: int):
         """Set the color temperature of the downlight of the lamp.
@@ -108,7 +112,6 @@ class Lamp:
             temp = 4000
         body = {"kelvin": temp}
         await self._send_command(body)
-        await self.refresh()
 
     async def set_scene(self, scene: int):
         """Scenes are identified by a numeric identifier. 0 is the Off scene, selecting it is equivalent to
@@ -120,7 +123,6 @@ class Lamp:
             scene = 31
         body = {"scene": scene}
         await self._send_command(body)
-        await self.refresh()
 
     async def refresh(self):
         state = await self._get_state()
