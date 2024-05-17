@@ -3,7 +3,7 @@ import aiohttp
 from .const import BASE_URL
 
 
-def _create_body(power=None, brightness=None, kelvin=None) -> dict:
+def _create_body(power=None, brightness: int = None, kelvin: int = None) -> dict:
     body = {}
     if brightness is not None:
         body["brightness"] = max(0, min(100, brightness))
