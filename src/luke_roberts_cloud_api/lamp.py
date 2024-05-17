@@ -29,7 +29,7 @@ class Lamp:
         self._headers = headers
         self.power: bool = False
         self.brightness: int = 0
-        self.colortemp_kelvin: int = 0
+        self.kelvin: int = 0
         self._online: bool = False
 
     async def _send_command(self, body):
@@ -65,7 +65,7 @@ class Lamp:
         return self.brightness
 
     def getColorTemp(self):
-        return self.colortemp_kelvin
+        return self.kelvin
 
     async def turn_on(self, brightness: int = None, color_temp: int = None):
         """Instructs the light to turn on, optionally with a specific brightness and color temperature.
@@ -119,7 +119,7 @@ class Lamp:
     async def refresh(self):
         state = await self._get_state()
         self.brightness = state["brightness"]
-        self.colortemp_kelvin = state["color"]["temperatureK"]
+        self.kelvin = state["color"]["temperatureK"]
         self.power = state["on"]
         self._online = state["online"]
         return self
@@ -130,6 +130,6 @@ class Lamp:
                 f"ID: {self._id}, "
                 f"Power: {self.power}, "
                 f"Brightness: {self.brightness}, "
-                f"Color Temp: {self.colortemp_kelvin}, "
+                f"Color Temp: {self.kelvin}, "
                 f"Online: {self._online}"
                 )
