@@ -88,7 +88,7 @@ class Lamp:
     async def turn_on(self, brightness: int = None, color_temp: int = None):
         """Instructs the light to turn on, optionally with a specific brightness and color temperature.
         Brightness is a value between 0 and 100, color_temp is a value between 2700 and 4000."""
-        await self._send_command(self.set_values(power=True, brightness=brightness, kelvin=color_temp))
+        await self.set_values(power=True, brightness=brightness, kelvin=color_temp)
 
     async def turn_off(self):
         body = {"power": "OFF"}
