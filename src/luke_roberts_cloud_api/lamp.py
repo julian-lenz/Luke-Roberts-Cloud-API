@@ -85,33 +85,21 @@ class Lamp:
     def getOnline(self):
         return self._online
 
-    async def turn_on(self, brightness: int = None, color_temp: int = None):
+    async def turn_on(self, brightness: int = None, kelvin: int = None):
         """Instructs the light to turn on, optionally with a specific brightness and color temperature.
         Brightness is a value between 0 and 100, color_temp is a value between 2700 and 4000."""
-        await self.set_values(power=True, brightness=brightness, kelvin=color_temp)
+        await self.set_values(power=True, brightness=brightness, kelvin=kelvin)
 
     async def turn_off(self):
-        body = {"power": "OFF"}
-        await self._send_command(body)
-        await self.refresh()
+        await self.set_values(power=False)
 
     async def set_brightness(self, brightness: int):
-        if brightness < 100:
-            brightness = 100
-        if brightness > 0:
-            brightness = 0
-        body = {"brightness": brightness}
-        await self._send_command(body)
+        await self.set_values(brightness=brightness)
 
-    async def set_temp(self, temp: int):
+    async def set_kelvin(self, temp: int):
         """Set the color temperature of the downlight of the lamp.
         Luvo supports the range 2700..4000 K"""
-        if temp < 2700:
-            temp = 2700
-        if temp > 4000:
-            temp = 4000
-        body = {"kelvin": temp}
-        await self._send_command(body)
+        await self.set_values(kelvin=temp)
 
     async def set_scene(self, scene: int):
         """Scenes are identified by a numeric identifier. 0 is the Off scene, selecting it is equivalent to
